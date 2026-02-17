@@ -1,0 +1,43 @@
+name: neocmakelsp
+version: 0.10.0
+base: core24
+title: neocmakelsp
+summary: Another CMake LSP
+description: |
+  Intelligent Code Completion: Provides precise code completions by analyzing
+  CMake files, enhancing development efficiency.
+
+  - Real-time Error Detection: Integrates linting functionality to check for
+    potential issues in your code, help maintaining code quality.  - Support for
+    Neovim, Emacs, VSCode, Helix: Compatible with these popular editors,
+    catering to diverse developer needs.  - Simple Configuration: Easy to set up
+    and use, minimizing configuration time so you can focus on development.  -
+    CLI Integration: Not only an LSP, but also includes command-line tools for
+    code formatting, making it convenient for different environments.
+
+license: Apache-2.0
+grade: stable
+confinement: strict
+issues:
+  - https://github.com/alexmurray/neocmakelsp-snap/issues
+contact:
+  - https://github.com/alexmurray/neocmakelsp-snap/issues
+source-code:
+  - https://github.com/neocmakelsp/neocmakelsp
+  - https://github.com/alexmurray/neocmakelsp-snap
+website:
+  - https://neocmakelsp.github.io/docs
+
+apps:
+  neocmakelsp:
+    command: bin/neocmakelsp
+    plugs:
+      - home
+      - removable-media
+
+parts:
+  neocmakelsp:
+    plugin: rust
+    source: https://github.com/neocmakelsp/neocmakelsp.git
+    source-tag: v$CRAFT_PROJECT_VERSION
+
