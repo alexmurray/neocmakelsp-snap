@@ -1,5 +1,5 @@
 name: neocmakelsp
-version: 0.10.0
+version: 0.10.1
 base: core24
 title: neocmakelsp
 summary: Another CMake LSP
