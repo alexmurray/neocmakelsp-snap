@@ -1,0 +1,5 @@
+summary: drive the language server over stdio like an editor would
+
+execute: |
+  cd $HOME/project
+  python3 $SPREAD_PATH/tests/lsp/lsp-client.py CMakeLists.txt

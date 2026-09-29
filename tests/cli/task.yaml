@@ -1,0 +1,22 @@
+summary: exercise the neocmakelsp command-line tools
+
+execute: |
+  cd $HOME/project
+
+  neocmakelsp --version | MATCH "^neocmakelsp [0-9]+\.[0-9]+\.[0-9]+"
+
+  # format should indent the body of the if() block
+  neocmakelsp format CMakeLists.txt | MATCH '^  message\(STATUS "greeting enabled"\)$'
+
+  # and --inplace should write that back to the file
+  neocmakelsp format --inplace CMakeLists.txt
+  MATCH '^  message\(STATUS "greeting enabled"\)$' < CMakeLists.txt
+
+  # tree should follow add_subdirectory() into lib/
+  neocmakelsp tree . | MATCH -- '-> ./lib/CMakeLists.txt'
+  neocmakelsp tree --json . | python3 -c '
+  import json, sys
+  tree = json.load(sys.stdin)
+  assert tree["current_file"] == "./CMakeLists.txt", tree
+  assert tree["subdirs"][0]["current_file"] == "./lib/CMakeLists.txt", tree
+  '

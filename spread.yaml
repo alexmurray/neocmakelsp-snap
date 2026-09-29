@@ -1,0 +1,69 @@
+project: neocmakelsp-snap
+
+backends:
+  # spread integration for image-garden(1) (https://gitlab.com/zygoon/image-garden)
+  # - downloads and caches official cloud images and boots them under
+  # QEMU/KVM, so unlike the old qemu backend there's no manual image-baking.
+  # Needs the image-garden snap (`snap install image-garden`) and /dev/kvm
+  # access.
+  garden:
+    type: adhoc
+    allocate: |
+      if [ -n "${SPREAD_HOST_PATH-}" ]; then
+        PATH="${SPREAD_HOST_PATH}"
+      fi
+      exec image-garden allocate --spread "$SPREAD_SYSTEM"."$(uname -m)"
+    discard: |
+      if [ -n "${SPREAD_HOST_PATH-}" ]; then
+        PATH="${SPREAD_HOST_PATH}"
+      fi
+      exec image-garden discard "$SPREAD_SYSTEM_ADDRESS"
+    systems:
+      - ubuntu-cloud-24.04:
+          username: ubuntu
+          password: ubuntu
+      - ubuntu-cloud-26.04:
+          username: ubuntu
+          password: ubuntu
+
+path: /spread/neocmakelsp-snap
+
+exclude:
+  - .git
+  - .github
+
+environment:
+  SNAP: neocmakelsp
+  CHANNEL/latest_stable: latest/stable
+  CHANNEL/latest_candidate: latest/candidate
+  CHANNEL/latest_beta: latest/beta
+  CHANNEL/latest_edge: latest/edge
+  CHANNEL/local: local
+
+suites:
+  tests/:
+    summary: spread tests
+    prepare: |
+      # ensure machine is up to date
+      export DEBIAN_FRONTEND=noninteractive
+      # use apt-get to support older Ubuntu releases
+      apt-get update
+      apt-get -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" upgrade -y
+      # use apt-get to support older Ubuntu releases
+      apt-get autoremove --purge -y
+      apt install -y snapd python3
+
+    prepare-each: |
+      if [ ${CHANNEL} == local ]; then
+          snap install --dangerous ${SPREAD_PATH}/${SNAP}_*.snap
+      else
+          snap install --channel ${CHANNEL} ${SNAP}
+      fi
+
+      # the snap only has the home plug so test inputs need to live in $HOME
+      cp -r $SPREAD_PATH/tests/inputs/project $HOME/project
+
+    restore-each: |
+      snap remove $SNAP
+      rm -rf snap/$SNAP
+      rm -rf $HOME/project

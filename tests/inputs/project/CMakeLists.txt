@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.10)
+project(hello C)
+if(WITH_GREETING)
+message(STATUS "greeting enabled")
+endif()
+add_subdirectory(lib)
+add_executable(hello main.c)
